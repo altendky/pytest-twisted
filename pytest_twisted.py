@@ -78,12 +78,18 @@ def block_from_thread(d):
 
 
 @decorator.decorator
-def inlineCallbacks(fun, *args, **kw):
+def yield_test(fun, *args, **kw):
     return defer.inlineCallbacks(fun)(*args, **kw)
 
 
+inlineCallbacks = _deprecate(
+    deprecated='pytest_twisted.inlineCallbacks',
+    recommended='pytest_twisted.yield_test',
+)(yield_test)
+
+
 @decorator.decorator
-def ensureDeferred(fun, *args, **kw):
+def await_test(fun, *args, **kw):
     return defer.ensureDeferred(fun(*args, **kw))
 
 
@@ -208,8 +214,8 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     pytest.inlineCallbacks = _deprecate(
         deprecated='pytest.inlineCallbacks',
-        recommended='pytest_twisted.inlineCallbacks',
-    )(inlineCallbacks)
+        recommended='pytest_twisted.yield_test',
+    )(yield_test)
     pytest.blockon = _deprecate(
         deprecated='pytest.blockon',
         recommended='pytest_twisted.blockon',

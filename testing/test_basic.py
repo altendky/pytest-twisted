@@ -3,8 +3,6 @@ import textwrap
 
 import pytest
 
-import pytest_twisted
-
 
 ASYNC_AWAIT = sys.version_info >= (3, 5)
 
@@ -61,10 +59,11 @@ def test_inline_callbacks_in_pytest():
     'decorator, should_warn',
     (
         ('pytest.inlineCallbacks', True),
-        ('pytest_twisted.inlineCallbacks', False),
+        ('pytest_twisted.inlineCallbacks', True),
+        ('pytest_twisted.yield_test', False),
     ),
 )
-def test_inline_callbacks_in_pytest_deprecation(
+def test_inline_callbacks_deprecation(
         testdir,
         cmd_opts,
         decorator,
@@ -189,7 +188,7 @@ def test_exception(testdir, cmd_opts):
     assert_outcomes(rr, {"failed": 1})
 
 
-def test_inlineCallbacks(testdir, cmd_opts):
+def test_yield_test(testdir, cmd_opts):
     test_file = """
     from twisted.internet import reactor, defer
     import pytest
@@ -199,7 +198,7 @@ def test_inlineCallbacks(testdir, cmd_opts):
     def foo(request):
         return request.param
 
-    @pytest_twisted.inlineCallbacks
+    @pytest_twisted.yield_test
     def test_succeed(foo):
         yield defer.succeed(foo)
         if foo == "web":
@@ -221,7 +220,7 @@ def test_async_await(testdir, cmd_opts):
     def foo(request):
         return request.param
 
-    @pytest_twisted.ensureDeferred
+    @pytest_twisted.await_test
     async def test_succeed(foo):
         await defer.succeed(foo)
         if foo == "web":
@@ -266,7 +265,7 @@ def test_blockon_in_fixture(testdir, cmd_opts):
         pytest_twisted.blockon(d1)
         return d2
 
-    @pytest_twisted.inlineCallbacks
+    @pytest_twisted.yield_test
     def test_succeed(foo):
         x = yield foo
         if x == "web":
@@ -292,7 +291,7 @@ def test_blockon_in_fixture_async(testdir, cmd_opts):
         pytest_twisted.blockon(d1)
         return d2
 
-    @pytest_twisted.ensureDeferred
+    @pytest_twisted.await_test
     async def test_succeed(foo):
         x = await foo
         if x == "web":
@@ -411,7 +410,7 @@ def test_pytest_from_reactor_thread(testdir, request):
     def test_simple(fix):
         assert fix == 42
 
-    @pytest_twisted.inlineCallbacks
+    @pytest_twisted.yield_test
     def test_fail():
         d = defer.Deferred()
         reactor.callLater(0.01, d.callback, 1)

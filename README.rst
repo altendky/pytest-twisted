@@ -50,25 +50,25 @@ undesirably detected by ``pytest`` as an unknown hook.  One alternative
 is to ``import pytest_twisted as pt``.
 
 
-inlineCallbacks
+@yield_test
 ===============
 Using ``twisted.internet.defer.inlineCallbacks`` as a decorator for test
 functions, which take funcargs, does not work. Please use
-``pytest_twisted.inlineCallbacks`` instead::
+``pytest_twisted.yield_test`` instead::
 
-  @pytest_twisted.inlineCallbacks
+  @pytest_twisted.yield_test
   def test_some_stuff(tmpdir):
       res = yield threads.deferToThread(os.listdir, tmpdir.strpath)
       assert res == []
 
 
-ensureDeferred
+@await_test
 ==============
 Using ``twisted.internet.defer.ensureDeferred`` as a decorator for test
 functions, which take funcargs, does not work. Please use
-``pytest_twisted.ensureDeferred`` instead::
+``pytest_twisted.await_test`` instead::
 
-  @pytest_twisted.ensureDeferred
+  @pytest_twisted.await_test
   async def test_some_stuff(tmpdir):
       res = await threads.deferToThread(os.listdir, tmpdir.strpath)
       assert res == []
@@ -106,8 +106,8 @@ Deprecations
 
 ``pytest.blockon``
     Use ``pytest_twisted.blockon``
-``pytest.inlineCallbacks``
-    Use ``pytest_twisted.inlineCallbacks``
+``pytest.inlineCallbacks``, ``pytest_twisted.inlineCallbacks``
+    Use ``pytest_twisted.yield_test``
 
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/pytest-twisted.svg
