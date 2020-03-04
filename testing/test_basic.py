@@ -289,10 +289,9 @@ def test_twisted_greenlet(testdir, cmd_opts):
         global MAIN
         MAIN = twisted_greenlet
 
-    @pytest_twisted.deferred_test
     def test_MAIN():
         assert MAIN is not None
-        assert MAIN is greenlet.getcurrent()
+        assert MAIN is not greenlet.getcurrent()
     """
     testdir.makepyfile(test_file)
     rr = testdir.run(sys.executable, "-m", "pytest", "-v", *cmd_opts)
