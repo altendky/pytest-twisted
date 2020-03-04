@@ -176,8 +176,10 @@ def test_blockon_in_pytest_deprecation(
 
 def test_fail_later(testdir, cmd_opts):
     test_file = """
+    import pytest_twisted
     from twisted.internet import reactor, defer
 
+    @pytest_twisted.deferred_test
     def test_fail():
         def doit():
             try:
@@ -196,8 +198,10 @@ def test_fail_later(testdir, cmd_opts):
 
 def test_succeed_later(testdir, cmd_opts):
     test_file = """
+    import pytest_twisted
     from twisted.internet import reactor, defer
 
+    @pytest_twisted.deferred_test
     def test_succeed():
         d = defer.Deferred()
         reactor.callLater(0.01, d.callback, 1)
@@ -276,6 +280,7 @@ def test_async_await(testdir, cmd_opts):
 def test_twisted_greenlet(testdir, cmd_opts):
     test_file = """
     import pytest, greenlet
+    import pytest_twisted
 
     MAIN = None
 
@@ -284,6 +289,7 @@ def test_twisted_greenlet(testdir, cmd_opts):
         global MAIN
         MAIN = twisted_greenlet
 
+    @pytest_twisted.deferred_test
     def test_MAIN():
         assert MAIN is not None
         assert MAIN is greenlet.getcurrent()
@@ -668,8 +674,10 @@ def test_blockon_in_hook(testdir, cmd_opts, request):
     """
     testdir.makeconftest(conftest_file)
     test_file = """
+    import pytest_twisted
     from twisted.internet import reactor, defer
 
+    @pytest_twisted.deferred_test
     def test_succeed():
         d = defer.Deferred()
         reactor.callLater(0.01, d.callback, 1)
