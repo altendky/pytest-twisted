@@ -107,7 +107,16 @@ def block_from_thread(d):
     return blockingCallFromThread(_instances.reactor, lambda x: x, d)
 
 
-# TODO: remove decorator the rest of the way?  or get it back in some use?
+def decorator_apply(dec, func):
+    """
+    Decorate a function by preserving the signature even if dec
+    is not a signature-preserving decorator.
+
+    https://github.com/micheles/decorator/blob/55a68b5ef1951614c5c37a6d201b1f3b804dbce6/docs/documentation.md#dealing-with-third-party-decorators
+    """
+    return decorator.FunctionMaker.create(
+        func, 'return decfunc(%(signature)s)',
+        dict(decfunc=dec(func)), __wrapped__=func)
 
 
 def deferred_test(f):
@@ -117,7 +126,8 @@ def deferred_test(f):
 
 
 def inlineCallbacks(f):
-    decorated = defer.inlineCallbacks(f)
+    decorated = decorator_apply(defer.inlineCallbacks, f)
+    # decorated = defer.inlineCallbacks(f)
     _set_mark(o=decorated, mark='inline_callbacks_test')
 
     return decorated
@@ -318,7 +328,10 @@ def _async_pytest_pyfunc_call(pyfuncitem):
         for name, value in pyfuncitem.funcargs.items()
         if name in pyfuncitem._fixtureinfo.argnames
     }
-    result = yield defer.ensureDeferred(pyfuncitem.obj(**kwargs))
+    try:
+        result = yield defer.ensureDeferred(pyfuncitem.obj(**kwargs))
+    except TypeError as e:
+        raise
     defer.returnValue(result)
 
 
