@@ -722,8 +722,10 @@ def test_blockon_in_hook_with_qt5reactor(testdir, cmd_opts, request):
     """
     testdir.makeconftest(conftest_file)
     test_file = """
+    import pytest_twisted
     from twisted.internet import reactor, defer
 
+    @pytest_twisted.deferred_test
     def test_succeed():
         d = defer.Deferred()
         reactor.callLater(0.01, d.callback, 1)
@@ -826,8 +828,10 @@ def test_blockon_in_hook_with_asyncio(testdir, cmd_opts, request):
     """
     testdir.makeconftest(conftest_file)
     test_file = """
+    import pytest_twisted
     from twisted.internet import reactor, defer
 
+    @pytest_twisted.deferred_test
     def test_succeed():
         d = defer.Deferred()
         reactor.callLater(0.01, d.callback, 1)
